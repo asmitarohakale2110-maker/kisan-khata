@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KisanKhata — Farm Ledger & Marketplace</title>
+  <!-- Tailwind CSS CDN for instant styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION -->
+  <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl">🌾</span>
+        <div>
+          <h1 class="font-bold text-lg leading-tight" id="app-title">KisanKhata</h1>
+          <p class="text-xs text-emerald-200" id="app-subtitle">Smart Farm Book & Market</p>
+        </div>
+      </div>
+      
+      <!-- Language Selector -->
+      <div class="flex items-center space-x-2">
+        <label for="lang-select" class="text-xs text-emerald-200 font-medium hidden sm:inline" id="lang-label">Language:</label>
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-emerald-900 border border-emerald-700 text-white text-sm rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="mr">मराठी (Marathi)</option>
+          <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <nav class="bg-emerald-900 border-t border-emerald-800 px-4">
+      <div class="max-w-6xl mx-auto flex space-x-1 sm:space-x-4 overflow-x-auto text-sm">
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="py-2.5 px-3 font-medium border-b-2 border-amber-400 text-white whitespace-nowrap">📊 <span data-i18n="nav_dashboard">Dashboard</span></button>
+        <button onclick="switchTab('ledger')" id="tab-btn-ledger" class="py-2.5 px-3 font-medium border-b-2 border-transparent text-emerald-200 hover:text-white whitespace-nowrap">📒 <span data-i18n="nav_ledger">Ledger (Khata)</span></button>
+        <button onclick="switchTab('marketplace')" id="tab-btn-marketplace" class="py-2.5 px-3 font-medium border-b-2 border-transparent text-emerald-200 hover:text-white whitespace-nowrap">🛒 <span data-i18n="nav_marketplace">Marketplace</span></button>
+        <button onclick="switchTab('profit')" id="tab-btn-profit" class="py-2.5 px-3 font-medium border-b-2 border-transparent text-emerald-200 hover:text-white whitespace-nowrap">📈 <span data-i18n="nav_profit">Crop P&L</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+    <!-- 1. DASHBOARD VIEW -->
+    <section id="view-dashboard" class="space-y-6">
+      <div class="bg-gradient-to-r from-emerald-700 to-green-600 rounded-2xl p-6 text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-emerald-200" data-i18n="dash_net_balance">Current Net Balance</span>
+          <div class="text-3xl sm:text-4xl font-extrabold mt-1" id="dash-net-val">₹ 0</div>
+          <p class="text-xs text-emerald-100 mt-1" data-i18n="dash_season">Kharif & Rabi Active Cycles</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="switchTab('ledger')" class="bg-white text-emerald-800 font-semibold px-4 py-2 rounded-lg text-sm shadow hover:bg-emerald-50 transition" data-i18n="btn_add_entry">+ Add Entry</button>
+          <button onclick="switchTab('marketplace')" class="bg-emerald-900 bg-opacity-40 border border-emerald-400 text-white font-medium px-4 py-2 rounded-lg text-sm hover:bg-opacity-60 transition" data-i18n="btn_view_market">Marketplace</button>
+        </div>
+      </div>
+
+      <!-- Financial Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+          <div class="text-sm font-medium text-stone-500" data-i18n="dash_total_income">Total Sales & Income</div>
+          <div class="text-2xl font-bold text-emerald-600 mt-2" id="dash-income-val">₹ 0</div>
+          <p class="text-xs text-stone-400 mt-1" data-i18n="dash_income_sub">From crop produce & rentals</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+          <div class="text-sm font-medium text-stone-500" data-i18n="dash_total_expense">Total Expenses</div>
+          <div class="text-2xl font-bold text-rose-600 mt-2" id="dash-expense-val">₹ 0</div>
+          <p class="text-xs text-stone-400 mt-1" data-i18n="dash_expense_sub">Seeds, fertilizer, fuel, labor</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+          <div class="text-sm font-medium text-stone-500" data-i18n="dash_total_transactions">Total Transactions</div>
+          <div class="text-2xl font-bold text-stone-800 mt-2" id="dash-count-val">0</div>
+          <p class="text-xs text-stone-400 mt-1" data-i18n="dash_count_sub">Recorded in digital khata</p>
+        </div>
+      </div>
+
+      <!-- Quick Summary List -->
+      <div class="bg-white rounded-xl border border-stone-200 shadow-sm p-5">
+        <h3 class="font-bold text-stone-800 mb-3" data-i18n="dash_recent_entries">Recent Khata Records</h3>
+        <div id="dash-recent-list" class="divide-y divide-stone-100 text-sm">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. LEDGER (KHATA) VIEW -->
+    <section id="view-ledger" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-stone-800" data-i18n="ledger_title">Farm Buys & Sells Ledger</h2>
+          <p class="text-sm text-stone-500" data-i18n="ledger_subtitle">Keep track of every rupee spent and earned</p>
+        </div>
+        <button onclick="toggleFormModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-4 py-2 rounded-lg text-sm transition" data-i18n="btn_new_entry">+ Record Transaction</button>
+      </div>
+
+      <!-- Transaction Table -->
+      <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-stone-50 border-b border-stone-200 text-stone-600 font-semibold">
+              <tr>
+                <th class="py-3 px-4" data-i18n="th_date">Date</th>
+                <th class="py-3 px-4" data-i18n="th_type">Type</th>
+                <th class="py-3 px-4" data-i18n="th_desc">Description / Item</th>
+                <th class="py-3 px-4" data-i18n="th_category">Category</th>
+                <th class="py-3 px-4 text-right" data-i18n="th_amount">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body" class="divide-y divide-stone-100">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MARKETPLACE VIEW -->
+    <section id="view-marketplace" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-stone-800" data-i18n="market_title">Kisan Marketplace</h2>
+          <p class="text-sm text-stone-500" data-i18n="market_subtitle">Direct trade for crops, seeds, fertilizer & machinery rental</p>
+        </div>
+        <!-- Category Filter -->
+        <div class="flex gap-2">
+          <button onclick="filterMarket('all')" class="market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-700 text-white" data-category="all" data-i18n="filter_all">All</button>
+          <button onclick="filterMarket('crop')" class="market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200" data-category="crop" data-i18n="filter_crops">Crops</button>
+          <button onclick="filterMarket('machinery')" class="market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200" data-category="machinery" data-i18n="filter_machinery">Machinery Rent</button>
+          <button onclick="filterMarket('inputs')" class="market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200" data-category="inputs" data-i18n="filter_inputs">Inputs/Seeds</button>
+        </div>
+      </div>
+
+      <!-- Marketplace Cards Grid -->
+      <div id="market-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- 4. CROP P&L VIEW -->
+    <section id="view-profit" class="space-y-6 hidden">
+      <div>
+        <h2 class="text-xl font-bold text-stone-800" data-i18n="pnl_title">Crop-Wise Profit & Loss Calculator</h2>
+        <p class="text-sm text-stone-500" data-i18n="pnl_subtitle">Calculate true profit per acre across input costs and harvest selling price</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Input Form -->
+        <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-stone-800 text-base" data-i18n="pnl_calc_header">Enter Crop Details</h3>
+          
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_crop_name">Crop Name</label>
+            <input id="calc-crop" type="text" value="Wheat (गेहूं / गहू)" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_acres">Land Area (Acres)</label>
+            <input id="calc-acres" type="number" value="3" oninput="calculatePnL()" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_revenue">Total Harvest Sales Revenue (₹)</label>
+            <input id="calc-revenue" type="number" value="95000" oninput="calculatePnL()" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_seed_cost">Seed & Fertilizer Cost (₹)</label>
+            <input id="calc-seeds" type="number" value="18000" oninput="calculatePnL()" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_labor_cost">Labor & Machinery Rent (₹)</label>
+            <input id="calc-labor" type="number" value="16000" oninput="calculatePnL()" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="pnl_other_cost">Water, Diesel & Other (₹)</label>
+            <input id="calc-other" type="number" value="8000" oninput="calculatePnL()" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Calculated Outcome -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-stone-800 text-lg mb-4" data-i18n="pnl_results_header">Crop Margin Analysis</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                <span class="text-xs text-stone-500" data-i18n="pnl_net_profit">Net Profit</span>
+                <div class="text-3xl font-extrabold text-emerald-600 mt-1" id="res-net-profit">₹ 53,000</div>
+              </div>
+              <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                <span class="text-xs text-stone-500" data-i18n="pnl_profit_per_acre">Profit Per Acre</span>
+                <div class="text-3xl font-extrabold text-stone-800 mt-1" id="res-per-acre">₹ 17,667</div>
+              </div>
+            </div>
+
+            <!-- Cost Breakdown Summary -->
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between py-2 border-b border-stone-100">
+                <span class="text-stone-500" data-i18n="pnl_total_cost">Total Production Cost:</span>
+                <span class="font-bold text-rose-600" id="res-total-cost">₹ 42,000</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-stone-100">
+                <span class="text-stone-500" data-i18n="pnl_gross_revenue">Gross Crop Revenue:</span>
+                <span class="font-bold text-emerald-700" id="res-gross-revenue">₹ 95,000</span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="text-stone-500" data-i18n="pnl_roi">Return on Investment (ROI):</span>
+                <span class="font-bold text-stone-800" id="res-roi">+126.19%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800 flex items-center gap-2">
+            <span>💡</span>
+            <span data-i18n="pnl_tip">Tip: Record all fertilizer & tractor costs in Khata to calculate seasonal averages automatically.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ADD TRANSACTION MODAL -->
+  <div id="modal-entry" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-lg text-stone-800" data-i18n="modal_add_title">New Khata Entry</h3>
+        <button onclick="toggleFormModal(false)" class="text-stone-400 hover:text-stone-700 text-xl">&times;</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="th_type">Transaction Type</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="selectType('sale')" id="btn-type-sale" class="py-2 rounded-lg font-semibold text-sm border-2 border-emerald-600 bg-emerald-50 text-emerald-700" data-i18n="type_sale">Sell / Income (+)</button>
+            <button type="button" onclick="selectType('expense')" id="btn-type-expense" class="py-2 rounded-lg font-semibold text-sm border-2 border-stone-200 bg-white text-stone-600" data-i18n="type_expense">Buy / Expense (-)</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="th_desc">Item Description</label>
+          <input id="input-desc" type="text" placeholder="e.g. Sold 20 Quintals Wheat" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="th_category">Category</label>
+          <select id="input-cat" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="Crops">🌾 Crop Sale</option>
+            <option value="Fertilizer">🧪 Fertilizer & Seeds</option>
+            <option value="Diesel">⛽ Fuel & Diesel</option>
+            <option value="Labor">👷 Field Labor</option>
+            <option value="Machinery">🚜 Tractor / Hire</option>
+            <option value="Other">📦 Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-stone-600 mb-1" data-i18n="th_amount">Amount (₹)</label>
+          <input id="input-amount" type="number" placeholder="5000" class="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="toggleFormModal(false)" class="px-4 py-2 text-stone-600 text-sm font-medium hover:bg-stone-100 rounded-lg" data-i18n="btn_cancel">Cancel</button>
+        <button onclick="saveTransaction()" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg" data-i18n="btn_save">Save Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-stone-100 border-t border-stone-200 py-4 text-center text-xs text-stone-500">
+    <p>🌾 KisanKhata • Designed for Indian Farmers • 100% In-Browser & GitHub Ready</p>
+  </footer>
+
+  <!-- APP JAVASCRIPT & MULTILINGUAL LOGIC -->
+  <script>
+    // 1. Multilingual Translations Dictionary
+    const translations = {
+      en: {
+        app_title: "KisanKhata",
+        app_subtitle: "Smart Farm Book & Market",
+        nav_dashboard: "Dashboard",
+        nav_ledger: "Ledger (Khata)",
+        nav_marketplace: "Marketplace",
+        nav_profit: "Crop P&L",
+        dash_net_balance: "Current Net Balance",
+        dash_season: "Active Farm Seasons",
+        btn_add_entry: "+ Add Entry",
+        btn_view_market: "Marketplace",
+        dash_total_income: "Total Income",
+        dash_total_expense: "Total Expenses",
+        dash_total_transactions: "Total Transactions",
+        dash_income_sub: "From crop sales & services",
+        dash_expense_sub: "Seeds, fertilizer, fuel, labor",
+        dash_count_sub: "Recorded in digital khata",
+        dash_recent_entries: "Recent Khata Records",
+        ledger_title: "Farm Buys & Sells Ledger",
+        ledger_subtitle: "Keep track of every rupee spent and earned",
+        btn_new_entry: "+ Record Transaction",
+        th_date: "Date",
+        th_type: "Type",
+        th_desc: "Description / Item",
+        th_category: "Category",
+        th_amount: "Amount (₹)",
+        market_title: "Kisan Marketplace",
+        market_subtitle: "Direct trade for crops, seeds & machinery hire",
+        filter_all: "All",
+        filter_crops: "Crops",
+        filter_machinery: "Machinery Rent",
+        filter_inputs: "Inputs/Seeds",
+        pnl_title: "Crop-Wise Profit & Loss Calculator",
+        pnl_subtitle: "Calculate true profit per acre across input costs and harvest prices",
+        pnl_calc_header: "Enter Crop Details",
+        pnl_crop_name: "Crop Name",
+        pnl_acres: "Land Area (Acres)",
+        pnl_revenue: "Harvest Sales Revenue (₹)",
+        pnl_seed_cost: "Seed & Fertilizer Cost (₹)",
+        pnl_labor_cost: "Labor & Machinery Rent (₹)",
+        pnl_other_cost: "Water, Diesel & Other (₹)",
+        pnl_results_header: "Crop Margin Analysis",
+        pnl_net_profit: "Net Profit",
+        pnl_profit_per_acre: "Profit Per Acre",
+        pnl_total_cost: "Total Production Cost:",
+        pnl_gross_revenue: "Gross Crop Revenue:",
+        pnl_roi: "Return on Investment (ROI):",
+        pnl_tip: "Tip: Record all fertilizer & tractor costs in Khata to calculate seasonal averages automatically.",
+        modal_add_title: "New Khata Entry",
+        type_sale: "Sell / Income (+)",
+        type_expense: "Buy / Expense (-)",
+        btn_cancel: "Cancel",
+        btn_save: "Save Entry"
+      },
+      hi: {
+        app_title: "किसानखाता",
+        app_subtitle: "स्मार्ट कृषि बहीखाता एवं मंडी",
+        nav_dashboard: "डैशबोर्ड",
+        nav_ledger: "खाता बही",
+        nav_marketplace: "कृषि मंडी",
+        nav_profit: "फसल मुनाफा",
+        dash_net_balance: "कुल शुद्ध बचत",
+        dash_season: "खरीफ एवं रबी मौसम",
+        btn_add_entry: "+ नया हिसाब",
+        btn_view_market: "मंडी देखें",
+        dash_total_income: "कुल बिक्री / आमदनी",
+        dash_total_expense: "कुल खर्च",
+        dash_total_transactions: "कुल लेन-देन",
+        dash_income_sub: "फसल व उपज बिक्री से",
+        dash_expense_sub: "बीज, खाद, डीजल, मजदूरी",
+        dash_count_sub: "खाते में दर्ज रिकॉर्ड",
+        dash_recent_entries: "ताजा लेन-देन",
+        ledger_title: "आय-व्यय बहीखाता",
+        ledger_subtitle: "एक-एक रुपये का सही हिसाब-किताब रखें",
+        btn_new_entry: "+ लेन-देन जोड़ें",
+        th_date: "दिनांक",
+        th_type: "प्रकार",
+        th_desc: "विवरण / वस्तु",
+        th_category: "श्रेणी",
+        th_amount: "रुपये (₹)",
+        market_title: "किसान मंडी",
+        market_subtitle: "फसल बिक्री, खाद-बीज और ट्रैक्टर/मशीनरी किराया",
+        filter_all: "सभी",
+        filter_crops: "फसलें",
+        filter_machinery: "मशीनरी किराया",
+        filter_inputs: "खाद व बीज",
+        pnl_title: "फसल-वार नफा-नुकसान कैलकुलेटर",
+        pnl_subtitle: "प्रति एकड़ लागत और उपज भाव के हिसाब से सही मुनाफा जानें",
+        pnl_calc_header: "फसल की जानकारी भरें",
+        pnl_crop_name: "फसल का नाम",
+        pnl_acres: "खेत का रकबा (एकड़)",
+        pnl_revenue: "कुल फसल बिक्री आमदनी (₹)",
+        pnl_seed_cost: "बीज व खाद की लागत (₹)",
+        pnl_labor_cost: "मजदूरी व मशीन किराया (₹)",
+        pnl_other_cost: "डीजल, पानी व अन्य खर्च (₹)",
+        pnl_results_header: "मुनाफा विश्लेषण",
+        pnl_net_profit: "शुद्ध मुनाफा",
+        pnl_profit_per_acre: "प्रति एकड़ मुनाफा",
+        pnl_total_cost: "कुल खेती लागत:",
+        pnl_gross_revenue: "कुल बिक्री आमदनी:",
+        pnl_roi: "लागत पर मुनाफा (ROI):",
+        pnl_tip: "सलाह: अपने सभी ट्रैक्टर और खाद खर्च बहीखाते में दर्ज करें।",
+        modal_add_title: "नया हिसाब जोड़ें",
+        type_sale: "बिक्री / आमदनी (+)",
+        type_expense: "खरीद / खर्च (-)",
+        btn_cancel: "रद्द करें",
+        btn_save: "सुरक्षित करें"
+      },
+      mr: {
+        app_title: "किसानखाता",
+        app_subtitle: "स्मार्ट शेती हिशोब आणि बाजार",
+        nav_dashboard: "डॅशबोर्ड",
+        nav_ledger: "खतावणी (हिशोब)",
+        nav_marketplace: "शेतकरी बाजार",
+        nav_profit: "पीक नफा-तोटा",
+        dash_net_balance: "एकूण शिल्लक नफा",
+        dash_season: "खरीप आणि रब्बी हंगाम",
+        btn_add_entry: "+ नोंद करा",
+        btn_view_market: "बाजारपेठ",
+        dash_total_income: "एकूण उत्पन्न (विक्री)",
+        dash_total_expense: "एकूण खर्च",
+        dash_total_transactions: "एकूण नोंदी",
+        dash_income_sub: "पीक विक्री व इतर",
+        dash_expense_sub: "बियाणे, खते, डिझेल, मजुरी",
+        dash_count_sub: "खतावणीत नोंदवलेले",
+        dash_recent_entries: "नुकत्याच झालेल्या नोंदी",
+        ledger_title: "खरेदी-विक्री खतावणी",
+        ledger_subtitle: "शेतातील प्रत्येक पैशाचा अचूक हिशोब",
+        btn_new_entry: "+ व्यवहार नोंदवा",
+        th_date: "तारीख",
+        th_type: "प्रकार",
+        th_desc: "तपशील / वस्तू",
+        th_category: "वर्गवारी",
+        th_amount: "रक्कम (₹)",
+        market_title: "शेतकरी बाजारपेठ",
+        market_subtitle: "थेट पीक विक्री, ट्रॅक्टर/यंत्र भाडे आणि खते-बियाणे",
+        filter_all: "सर्व",
+        filter_crops: "पिके",
+        filter_machinery: "यंत्रसामग्री भाडे",
+        filter_inputs: "बियाणे व खते",
+        pnl_title: "पीकनिहाय नफा-तोटा गणक",
+        pnl_subtitle: "खर्च व मिळकतीनुसार एकरी निव्वळ नफा तपासा",
+        pnl_calc_header: "पिकाचा तपशील भरा",
+        pnl_crop_name: "पिकाचे नाव",
+        pnl_acres: "क्षेत्र (एकर)",
+        pnl_revenue: "एकूण पीक उत्पन्न (₹)",
+        pnl_seed_cost: "बियाणे व खत खर्च (₹)",
+        pnl_labor_cost: "मजुरी व ट्रॅक्टर भाडे (₹)",
+        pnl_other_cost: "पाणी, डिझेल व इतर खर्च (₹)",
+        pnl_results_header: "नफा-तोटा विश्लेषण",
+        pnl_net_profit: "निव्वळ नफा",
+        pnl_profit_per_acre: "एकरी नफा",
+        pnl_total_cost: "एकूण उत्पादन खर्च:",
+        pnl_gross_revenue: "एकूण मिळालेली रक्कम:",
+        pnl_roi: "गुंतवणुकीवरील परतावा:",
+        pnl_tip: "टीप: खते व यंत्रांचा खर्च खतावणीत लिहिल्यास अचूक अंदाज मिळतो.",
+        modal_add_title: "नवीन व्यवहार जोडा",
+        type_sale: "उत्पन्न / विक्री (+)",
+        type_expense: "खर्च / खरेदी (-)",
+        btn_cancel: "रद्द करा",
+        btn_save: "जतन करा"
+      },
+      pa: {
+        app_title: "ਕਿਸਾਨ ਖਾਤਾ",
+        app_subtitle: "ਸਮਾਰਟ ਖੇਤੀ ਵਹੀ-ਖਾਤਾ ਤੇ ਮੰਡੀ",
+        nav_dashboard: "ਡੈਸ਼ਬੋਰਡ",
+        nav_ledger: "ਵਹੀ-ਖਾਤਾ",
+        nav_marketplace: "ਕਿਸਾਨ ਮੰਡੀ",
+        nav_profit: "ਫ਼ਸਲ ਮੁਨਾਫ਼ਾ",
+        dash_net_balance: "ਕੁੱਲ ਬੱਚਤ",
+        dash_season: "ਹਾੜ੍ਹੀ ਅਤੇ ਸਾਉਣੀ ਸੀਜ਼ਨ",
+        btn_add_entry: "+ ਨਵਾਂ ਹਿਸਾਬ",
+        btn_view_market: "ਮੰਡੀ ਵੇਖੋ",
+        dash_total_income: "ਕੁੱਲ ਆਮਦਨ",
+        dash_total_expense: "ਕੁੱਲ ਖਰਚਾ",
+        dash_total_transactions: "ਕੁੱਲ ਲੈਣ-ਦੇਣ",
+        dash_income_sub: "ਫ਼ਸਲ ਵਿਕਰੀ ਤੋਂ",
+        dash_expense_sub: "ਬੀਜ, ਖਾਦ, ਡੀਜ਼ਲ, ਮਜ਼ਦੂਰੀ",
+        dash_count_sub: "ਖਾਤੇ ਵਿੱਚ ਦਰਜ ਰਿਕਾਰਡ",
+        dash_recent_entries: "ਤਾਜ਼ਾ ਲੈਣ-ਦੇਣ",
+        ledger_title: "ਖ਼ਰੀਦੋ-ਫ਼ਰੋਖ਼ਤ ਵਹੀ-ਖਾਤਾ",
+        ledger_subtitle: "ਖੇਤ ਦੇ ਹਰ ਰੁਪਏ ਦਾ ਪੱਕਾ ਹਿਸਾਬ ਰੱਖੋ",
+        btn_new_entry: "+ ਐਂਟਰੀ ਦਰਜ ਕਰੋ",
+        th_date: "ਮਿਤੀ",
+        th_type: "ਕਿਸਮ",
+        th_desc: "ਵੇਰਵਾ / ਆਈਟਮ",
+        th_category: "ਕੈਟਾਗਰੀ",
+        th_amount: "ਰੁਪਏ (₹)",
+        market_title: "ਕਿਸਾਨ ਮੰਡੀ",
+        market_subtitle: "ਫ਼ਸਲ ਵਿਕਰੀ, ਟਰੈਕਟਰ ਕਿਰਾਇਆ ਤੇ ਖਾਦ-ਬੀਜ",
+        filter_all: "ਸਭ",
+        filter_crops: "ਫ਼ਸਲਾਂ",
+        filter_machinery: "ਮਸ਼ੀਨਰੀ ਕਿਰਾਇਆ",
+        filter_inputs: "ਬੀਜ ਤੇ ਖਾਦ",
+        pnl_title: "ਫ਼ਸਲ-ਵਾਰ ਮੁਨਾਫ਼ਾ ਕੈਲਕੁਲੇਟਰ",
+        pnl_subtitle: "ਪ੍ਰਤੀ ਏਕੜ ਲਾਗਤ ਅਤੇ ਵਿਕਰੀ ਦੇ ਹਿਸਾਬ ਨਾਲ ਅਸਲ ਮੁਨਾਫ਼ਾ ਜਾਣੋ",
+        pnl_calc_header: "ਫ਼ਸਲ ਦੇ ਵੇਰਵੇ ਭਰੋ",
+        pnl_crop_name: "ਫ਼ਸਲ ਦਾ ਨਾਂ",
+        pnl_acres: "ਰਕਬਾ (ਏਕੜ)",
+        pnl_revenue: "ਕੁੱਲ ਵਿਕਰੀ ਆਮਦਨ (₹)",
+        pnl_seed_cost: "ਬੀਜ ਤੇ ਖਾਦ ਖ਼ਰਚ (₹)",
+        pnl_labor_cost: "ਮਜ਼ਦੂਰੀ ਤੇ ਮਸ਼ੀਨਰੀ (₹)",
+        pnl_other_cost: "ਡੀਜ਼ਲ, ਪਾਣੀ ਤੇ ਹੋਰ (₹)",
+        pnl_results_header: "ਮੁਨਾਫ਼ਾ ਵਿਸ਼ਲੇਸ਼ਣ",
+        pnl_net_profit: "ਅਸਲ ਮੁਨਾਫ਼ਾ",
+        pnl_profit_per_acre: "ਪ੍ਰਤੀ ਏਕੜ ਮੁਨਾਫ਼ਾ",
+        pnl_total_cost: "ਕੁੱਲ ਉਤਪਾਦਨ ਲਾਗਤ:",
+        pnl_gross_revenue: "ਕੁੱਲ ਆਮਦਨ:",
+        pnl_roi: "ਮੁਨਾਫ਼ਾ ਦਰ (ROI):",
+        pnl_tip: "ਸਲਾਹ: ਸਾਰੇ ਖ਼ਰਚੇ ਖਾਤੇ ਵਿੱਚ ਦਰਜ ਕਰੋ ਤਾਂ ਜੋ ਸਹੀ ਮੁਨਾਫ਼ਾ ਨਿਕਲ ਸਕੇ।",
+        modal_add_title: "ਨਵਾਂ ਹਿਸਾਬ ਜੋੜੋ",
+        type_sale: "ਵਿਕਰੀ / ਆਮਦਨ (+)",
+        type_expense: "ਖ਼ਰੀਦ / ਖ਼ਰਚ (-)",
+        btn_cancel: "ਰੱਦ ਕਰੋ",
+        btn_save: "ਸੰਭਾਲੋ"
+      }
+    };
+
+    // 2. Initial Sample Transactions
+    let transactions = [
+      { id: 1, date: "2026-10-24", type: "sale", desc: "Sold 35 Quintals Paddy (धान / भात)", cat: "Crops", amount: 77000 },
+      { id: 2, date: "2026-10-22", type: "expense", desc: "DAP Fertilizer (5 Bags) & Urea", cat: "Fertilizer", amount: 8250 },
+      { id: 3, date: "2026-10-20", type: "expense", desc: "Tractor Rotavator Hire (10 hrs)", cat: "Machinery", amount: 9000 },
+      { id: 4, date: "2026-10-18", type: "expense", desc: "Diesel for Water Pump (60L)", cat: "Diesel", amount: 5400 },
+      { id: 5, date: "2026-10-15", type: "sale", desc: "Sold Fresh Onions (कांदा / प्याज)", cat: "Crops", amount: 24500 }
+    ];
+
+    // 3. Marketplace Listings
+    const marketItems = [
+      { id: 1, category: "crop", title: "Premium Sharbati Wheat", subtitle: "Grade A dry grain • MP / Malwa origin", price: "₹ 2,450 / Quintal", location: "Khandwa, MP", icon: "🌾" },
+      { id: 2, category: "machinery", title: "Mahindra 575 DI Tractor for Rent", subtitle: "With Rotavator & Trolley • Operator included", price: "₹ 900 / Hour", location: "Nashik, Maharashtra", icon: "🚜" },
+      { id: 3, category: "crop", title: "Organic Basmati Paddy (1509)", subtitle: "Freshly harvested, low moisture", price: "₹ 3,600 / Quintal", location: "Karnal, Haryana", icon: "🌾" },
+      { id: 4, category: "inputs", title: "Certified Mustard Seeds (Pusa Bold)", subtitle: "High oil content, disease resistant 5kg bag", price: "₹ 850 / Pack", location: "Alwar, Rajasthan", icon: "🌱" },
+      { id: 5, category: "machinery", title: "Combine Harvester on Daily Hire", subtitle: "Paddy & wheat harvesting with spreader", price: "₹ 1,800 / Acre", location: "Ludhiana, Punjab", icon: "🚜" },
+      { id: 6, category: "inputs", title: "Bio-Fertilizer (Neem Coated)", subtitle: "Organic soil conditioning 50kg", price: "₹ 620 / Bag", location: "Pune, Maharashtra", icon: "🧪" }
+    ];
+
+    let currentLanguage = 'en';
+    let currentTransactionType = 'sale';
+
+    // Switch Views
+    function switchTab(tabId) {
+      ['dashboard', 'ledger', 'marketplace', 'profit'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.classList.remove('border-amber-400', 'text-white');
+        btn.classList.add('border-transparent', 'text-emerald-200');
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      activeBtn.classList.add('border-amber-400', 'text-white');
+      activeBtn.classList.remove('border-transparent', 'text-emerald-200');
+    }
+
+    // Change Language
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      const dict = translations[lang] || translations.en;
+
+      // Update static text elements
+      document.getElementById('app-title').textContent = dict.app_title;
+      document.getElementById('app-subtitle').textContent = dict.app_subtitle;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      renderLedger();
+      renderDashboard();
+    }
+
+    // Render Dashboard
+    function renderDashboard() {
+      let income = 0;
+      let expense = 0;
+
+      transactions.forEach(t => {
+        if (t.type === 'sale') income += t.amount;
+        else expense += t.amount;
+      });
+
+      const net = income - expense;
+
+      document.getElementById('dash-income-val').textContent = `₹ ${income.toLocaleString('en-IN')}`;
+      document.getElementById('dash-expense-val').textContent = `₹ ${expense.toLocaleString('en-IN')}`;
+      document.getElementById('dash-net-val').textContent = `₹ ${net.toLocaleString('en-IN')}`;
+      document.getElementById('dash-count-val').textContent = transactions.length;
+
+      const recentList = document.getElementById('dash-recent-list');
+      recentList.innerHTML = '';
+      transactions.slice(0, 4).forEach(t => {
+        const isSale = t.type === 'sale';
+        const row = document.createElement('div');
+        row.className = "flex justify-between items-center py-2.5";
+        row.innerHTML = `
+          <div>
+            <div class="font-medium text-stone-800">${t.desc}</div>
+            <div class="text-xs text-stone-400">${t.date} • ${t.cat}</div>
+          </div>
+          <span class="font-bold ${isSale ? 'text-emerald-600' : 'text-rose-600'}">
+            ${isSale ? '+' : '-'} ₹ ${t.amount.toLocaleString('en-IN')}
+          </span>
+        `;
+        recentList.appendChild(row);
+      });
+    }
+
+    // Render Ledger
+    function renderLedger() {
+      const tbody = document.getElementById('ledger-table-body');
+      tbody.innerHTML = '';
+
+      transactions.forEach(t => {
+        const isSale = t.type === 'sale';
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-stone-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-stone-500">${t.date}</td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold ${isSale ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${isSale ? 'Income' : 'Expense'}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-medium text-stone-800">${t.desc}</td>
+          <td class="py-3 px-4 text-stone-600"><span class="bg-stone-100 px-2 py-0.5 rounded text-xs">${t.cat}</span></td>
+          <td class="py-3 px-4 text-right font-bold ${isSale ? 'text-emerald-700' : 'text-rose-600'}">
+            ${isSale ? '+' : '-'} ₹ ${t.amount.toLocaleString('en-IN')}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render Marketplace
+    function renderMarket(filter = 'all') {
+      const grid = document.getElementById('market-grid');
+      grid.innerHTML = '';
+
+      const items = filter === 'all' ? marketItems : marketItems.filter(i => i.category === filter);
+      items.forEach(m => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="text-3xl mb-2">${m.icon}</div>
+            <h4 class="font-bold text-stone-800 text-base leading-snug">${m.title}</h4>
+            <p class="text-xs text-stone-500 mt-1">${m.subtitle}</p>
+            <div class="mt-3 text-xs text-stone-400">📍 ${m.location}</div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+            <span class="font-extrabold text-emerald-700 text-sm">${m.price}</span>
+            <button onclick="alert('Connecting to seller in ${m.location} via phone/WhatsApp...')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">Contact</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterMarket(category) {
+      document.querySelectorAll('.market-filter-btn').forEach(b => {
+        if (b.getAttribute('data-category') === category) {
+          b.className = "market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-700 text-white";
+        } else {
+          b.className = "market-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200";
+        }
+      });
+      renderMarket(category);
+    }
+
+    // Profit & Loss Calculator
+    function calculatePnL() {
+      const acres = parseFloat(document.getElementById('calc-acres').value) || 1;
+      const revenue = parseFloat(document.getElementById('calc-revenue').value) || 0;
+      const seeds = parseFloat(document.getElementById('calc-seeds').value) || 0;
+      const labor = parseFloat(document.getElementById('calc-labor').value) || 0;
+      const other = parseFloat(document.getElementById('calc-other').value) || 0;
+
+      const totalCost = seeds + labor + other;
+      const netProfit = revenue - totalCost;
+      const perAcre = acres > 0 ? Math.round(netProfit / acres) : 0;
+      const roi = totalCost > 0 ? ((netProfit / totalCost) * 100).toFixed(2) : 0;
+
+      document.getElementById('res-total-cost').textContent = `₹ ${totalCost.toLocaleString('en-IN')}`;
+      document.getElementById('res-gross-revenue').textContent = `₹ ${revenue.toLocaleString('en-IN')}`;
+      document.getElementById('res-net-profit').textContent = `₹ ${netProfit.toLocaleString('en-IN')}`;
+      document.getElementById('res-per-acre').textContent = `₹ ${perAcre.toLocaleString('en-IN')}`;
+      document.getElementById('res-roi').textContent = `${roi >= 0 ? '+' : ''}${roi}%`;
+
+      const netEl = document.getElementById('res-net-profit');
+      if (netProfit >= 0) {
+        netEl.className = "text-3xl font-extrabold text-emerald-600 mt-1";
+      } else {
+        netEl.className = "text-3xl font-extrabold text-rose-600 mt-1";
+      }
+    }
+
+    // Modal & Transaction Recording
+    function toggleFormModal(show) {
+      const modal = document.getElementById('modal-entry');
+      if (show) modal.classList.remove('hidden');
+      else modal.classList.add('hidden');
+    }
+
+    function selectType(type) {
+      currentTransactionType = type;
+      const saleBtn = document.getElementById('btn-type-sale');
+      const expBtn = document.getElementById('btn-type-expense');
+
+      if (type === 'sale') {
+        saleBtn.className = "py-2 rounded-lg font-semibold text-sm border-2 border-emerald-600 bg-emerald-50 text-emerald-700";
+        expBtn.className = "py-2 rounded-lg font-semibold text-sm border-2 border-stone-200 bg-white text-stone-600";
+      } else {
+        expBtn.className = "py-2 rounded-lg font-semibold text-sm border-2 border-rose-600 bg-rose-50 text-rose-700";
+        saleBtn.className = "py-2 rounded-lg font-semibold text-sm border-2 border-stone-200 bg-white text-stone-600";
+      }
+    }
+
+    function saveTransaction() {
+      const desc = document.getElementById('input-desc').value.trim();
+      const cat = document.getElementById('input-cat').value;
+      const amount = parseFloat(document.getElementById('input-amount').value);
+
+      if (!desc || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid description and amount.");
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      transactions.unshift({
+        id: Date.now(),
+        date: today,
+        type: currentTransactionType,
+        desc: desc,
+        cat: cat,
+        amount: amount
+      });
+
+      document.getElementById('input-desc').value = '';
+      document.getElementById('input-amount').value = '';
+      toggleFormModal(false);
+
+      renderDashboard();
+      renderLedger();
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+      renderLedger();
+      renderMarket();
+      calculatePnL();
+    });
+  </script>
+</body>
+</html>
